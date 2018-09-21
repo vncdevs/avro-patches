@@ -44,6 +44,16 @@ module Avro
       end
     end
 
+    module Decimal
+      def self.encode(value)
+        value.to_s
+      end
+
+      def self.decode(decimal)
+        decimal
+      end
+    end
+
     module Identity
       def self.encode(datum)
         datum
@@ -61,6 +71,9 @@ module Avro
       "long" => {
         "timestamp-millis" => TimestampMillis,
         "timestamp-micros" => TimestampMicros
+      },
+      "bytes" => {
+        "decimal" => Decimal,
       },
     }.freeze
 
