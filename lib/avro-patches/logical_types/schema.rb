@@ -1,5 +1,5 @@
 Avro::Schema.class_eval do
-  attr_reader :logical_type
+  attr_reader :logical_type, :precision, :scale
 
   # Build Avro Schema from data parsed out of JSON string.
   def self.real_parse(json_obj, names=nil, default_namespace=nil)
@@ -16,7 +16,7 @@ Avro::Schema.class_eval do
 
       type_sym = type.to_sym
       if Avro::Schema::PRIMITIVE_TYPES_SYM.include?(type_sym)
-        return Avro::Schema::PrimitiveSchema.new(type_sym, logical_type)
+        return Avro::Schema::PrimitiveSchema.new(type_sym, logical_type, json_obj['precision'], json_obj['scale'])
 
       elsif Avro::Schema::NAMED_TYPES_SYM.include? type_sym
         name = json_obj['name']
@@ -62,9 +62,11 @@ Avro::Schema.class_eval do
     false
   end
 
-  def initialize(type, logical_type=nil)
+  def initialize(type, logical_type=nil, precision=nil, scale=nil)
     @type_sym = type.is_a?(Symbol) ? type : type.to_sym
     @logical_type = logical_type
+    @precision = precision
+    @scale = scale
   end
 
   def type_adapter
@@ -74,6 +76,8 @@ Avro::Schema.class_eval do
   def to_avro(names=nil)
     props = {'type' => type}
     props['logicalType'] = logical_type if logical_type
+    props['precision'] = precision if precision
+    props['scale'] = scale if scale
     props
   end
 end
@@ -87,11 +91,11 @@ Avro::Schema::NamedSchema.class_eval do
 end
 
 Avro::Schema::PrimitiveSchema.class_eval do
-  def initialize(type, logical_type=nil)
+  def initialize(type, logical_type=nil, precision=nil, scale=nil)
     if Avro::Schema::PRIMITIVE_TYPES_SYM.include?(type)
-      super(type, logical_type)
+      super(type, logical_type, precision, scale)
     elsif Avro::Schema::PRIMITIVE_TYPES.include?(type)
-      super(type.to_sym, logical_type)
+      super(type.to_sym, logical_type, precision, scale)
     else
       raise Avro::AvroError.new("#{type} is not a valid primitive type.")
     end
