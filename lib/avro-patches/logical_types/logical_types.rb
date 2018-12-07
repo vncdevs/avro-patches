@@ -45,12 +45,12 @@ module Avro
     end
 
     module Decimal
-      def self.encode(value)
-        value.to_s
+      def self.encode(value, precision, scale)
+        [value * 10 ** scale].pack("Q")
       end
 
-      def self.decode(decimal)
-        decimal
+      def self.decode(bytes, precision, scale)
+        bytes.unpack("Q").first.to_d / 10 ** scale
       end
     end
 
