@@ -1,6 +1,11 @@
 Avro::IO::DatumWriter.class_eval do
   def write_data(writers_schema, logical_datum, encoder)
-    datum = writers_schema.type_adapter.encode(logical_datum)
+    datum =
+      if writers_schema.logical_type == 'decimal'
+        writers_schema.type_adapter.encode(logical_datum, writers_schema.precision, writers_schema.scale)
+      else
+        writers_schema.type_adapter.encode(logical_datum)
+      end
 
     unless Avro::Schema.validate(writers_schema, datum, { recursive: false, encoded: true })
       raise Avro::IO::AvroTypeError.new(writers_schema, datum)
