@@ -86,7 +86,7 @@ Avro::Schema::NamedSchema.class_eval do
   def initialize(type, name, namespace=nil, names=nil, logical_type=nil)
     super(type, logical_type)
     @name, @namespace = Avro::Name.extract_namespace(name, namespace)
-    Avro::Name.add_name(names, self)
+    Avro::Name.add_name(names, self) unless names.has_key?(fullname)
   end
 end
 
