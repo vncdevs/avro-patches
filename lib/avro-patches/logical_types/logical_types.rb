@@ -46,11 +46,11 @@ module Avro
 
     module Decimal
       def self.encode(value, precision, scale)
-        [value * 10 ** scale].pack("q")
+        [value * 10**scale].pack('w')
       end
 
       def self.decode(bytes, precision, scale)
-        bytes.unpack("q").first.to_d / 10 ** scale
+        bytes.unpack1('w').to_d / 10**scale
       end
     end
 
